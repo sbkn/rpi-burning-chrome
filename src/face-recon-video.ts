@@ -49,4 +49,6 @@ const index = async (): Promise<void> => {
 	});
 };
 
-index();
+(async () => {
+	await index();
+})();

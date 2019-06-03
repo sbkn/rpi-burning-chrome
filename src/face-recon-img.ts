@@ -30,4 +30,6 @@ const index = async (): Promise<void> => {
 	// await cv.imwriteAsync(RESULT_IMAGE_PATH, img);
 };
 
-index();
+(async () => {
+	await index();
+})();
