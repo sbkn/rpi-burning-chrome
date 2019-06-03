@@ -14,6 +14,6 @@
 
 ## TODO:
  - https://raspberrypi.stackexchange.com/questions/15454/detect-if-iphone-android-nearby
- - https://github.com/slackapi/node-slack-sdk
+ - https://github.com/slackapi/node-slack-sdk (https://slack.dev/node-slack-sdk/rtm-api)
  - https://www.pyimagesearch.com/2015/06/01/home-surveillance-and-motion-detection-with-the-raspberry-pi-python-and-opencv/
  -  

@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/sbkn/rpi-burning-chrome#readme",
   "dependencies": {
+    "@slack/rtm-api": "5.0.1",
     "opencv4nodejs": "4.17.0"
   },
   "devDependencies": {
