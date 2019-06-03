@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "release": "npm run build",
-    "start": "node ./dist/face-recon-test.js"
+    "build": "rimraf ./dist && tsc",
+    "release": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -31,6 +30,7 @@
     "opencv4nodejs": "4.17.0"
   },
   "devDependencies": {
+    "rimraf": "2.6.3",
     "typescript": "3.5.1"
   }
 }
