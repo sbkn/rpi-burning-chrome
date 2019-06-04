@@ -1,11 +1,12 @@
 {
   "name": "rpi-burning-chrome",
   "version": "1.0.0",
-  "description": "This be motion detection and such for RPI",
+  "description": "This be motion detection and such for RPi",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rimraf ./dist && tsc",
+    "clean": "rimraf ./dist",
+    "build": "npm run clean && tsc",
     "release": "npm run build"
   },
   "repository": {

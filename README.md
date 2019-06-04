@@ -1,6 +1,6 @@
 # rpi-burning-chrome
 
-### This be motion detection and such for RPI
+### This be motion detection and such for RPi
 
 ### Requirements:
  - cmake
