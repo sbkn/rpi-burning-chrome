@@ -1,5 +1,6 @@
 import {WebAPICallResult, WebClient} from "@slack/web-api";
 import {createReadStream} from "fs";
+import {logger} from "../utils/logger";
 
 interface FileUploadResult extends WebAPICallResult {
 	file: {
@@ -23,6 +24,6 @@ export default class WebWrapper {
 			file: createReadStream(filePath),
 		}) as FileUploadResult;
 
-		console.log('File uploaded: ', result.file && result.file.id);
+		logger.info('File uploaded: ', result.file && result.file.id);
 	}
 }
