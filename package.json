@@ -30,7 +30,8 @@
   "dependencies": {
     "@slack/rtm-api": "5.0.1",
     "@slack/web-api": "5.0.1",
-    "opencv4nodejs": "4.17.0"
+    "opencv4nodejs": "4.17.0",
+    "winston": "3.2.1"
   },
   "devDependencies": {
     "rimraf": "2.6.3",

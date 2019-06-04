@@ -2,13 +2,15 @@
 
 ### This be motion detection and such for RPi
 
-### Requirements:
+### Requirements for building:
  - cmake
     - On MacOS use
     ```
     #brew install cmake
     ```
 
+### Requirements for running:
+ - Set env var `SLACK_BOT_TOKEN`, this should be something like `xoxb-...`
 
 ### Using example code from [opencv4nodejs](https://github.com/justadudewhohacks/opencv4nodejs)
 
