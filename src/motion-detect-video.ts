@@ -51,7 +51,7 @@ function drawRectAroundBlobs (binaryImg: cv.Mat, dstImg: cv.Mat, minPxSize: numb
 const bgSubtractor = new cv.BackgroundSubtractorMOG2();
 
 const delay = 20;
-grabFrames('./traffic.mp4', delay, (frame: cv.Mat) => {
+grabFrames('./testdata/traffic.mp4', delay, (frame: cv.Mat) => {
 	const foreGroundMask = bgSubtractor.apply(frame);
 
 	const iterations = 2;

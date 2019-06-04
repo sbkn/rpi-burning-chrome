@@ -111,7 +111,7 @@ export default class SlackClient {
 			const reply = await this.rtmWrapper.sendMessage(`Uploading a photo, <@${event.user}>`, event.channel);
 			console.log("Message sent successfully", reply.ts);
 
-			await this.webWrapper.uploadFileFromDisk(event.channel, "./crowd-img.jpeg");
+			await this.webWrapper.uploadFileFromDisk(event.channel, "./testdata/crowd-img.jpeg");
 		} catch (error) {
 			console.log("An error occurred", error);
 		}
@@ -122,7 +122,7 @@ export default class SlackClient {
 			const reply = await this.rtmWrapper.sendMessage(`Uploading a video, <@${event.user}>`, event.channel);
 			console.log("Message sent successfully", reply.ts);
 
-			await this.webWrapper.uploadFileFromDisk(event.channel, "./traffic.mp4");
+			await this.webWrapper.uploadFileFromDisk(event.channel, "./testdata/traffic.mp4");
 		} catch (error) {
 			console.log("An error occurred", error);
 		}

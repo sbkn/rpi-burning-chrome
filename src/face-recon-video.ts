@@ -31,7 +31,7 @@ const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 const delay = 100;
 
 const index = async (): Promise<void> => {
-	grabFrames('./people.mp4', delay, async (frame: cv.Mat) => {
+	grabFrames('./testdata/people.mp4', delay, async (frame: cv.Mat) => {
 
 		const grayImg = await frame.bgrToGrayAsync();
 		const res = await classifier.detectMultiScaleAsync(grayImg);

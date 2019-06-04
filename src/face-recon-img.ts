@@ -1,7 +1,7 @@
 import * as cv from "opencv4nodejs";
 import {Vec3, Point2} from "opencv4nodejs";
 
-const INPUT_IMAGE_PATH = "./crowd-img.jpeg";
+const INPUT_IMAGE_PATH = "./testdata/crowd-img.jpeg";
 // const RESULT_IMAGE_PATH = "./result.jpeg";
 
 const BOUNDING_BOX_COLOR = new Vec3(66, 244, 110);
