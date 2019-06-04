@@ -1,5 +1,6 @@
 import {RTMClient} from "@slack/rtm-api";
 import {WebAPICallResult} from "@slack/web-api";
+import {logger} from "../utils/logger";
 
 interface StartClientResult extends WebAPICallResult {
 	self: {
@@ -26,12 +27,12 @@ export default class RtmWrapper {
 
 		try {
 			const {self, team} = await this.rtm.start() as StartClientResult;
-			console.log(`Connected as ${self.name} to ${team.name}/${team.domain}`);
-			console.log(`Bot ID is: ${this.rtm.activeUserId}`);
+			logger.info(`Connected as ${self.name} to ${team.name}/${team.domain}`);
+			logger.info(`Bot ID is: ${this.rtm.activeUserId}`);
 			this.activeUserId = this.rtm.activeUserId;
 		}
 		catch (err) {
-			console.error("Failed to connect to Slack:", err);
+			logger.error("Failed to connect to Slack:", err);
 			process.exit(1);
 		}
 

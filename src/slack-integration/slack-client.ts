@@ -1,5 +1,6 @@
 import RtmWrapper from "./rtm-wrapper";
 import WebWrapper from "./web-wrapper";
+import {logger} from "../utils/logger";
 
 enum Actions {
 	HELP = "help",
@@ -17,7 +18,7 @@ export default class SlackClient {
 	constructor() {
 
 		if (!process.env.SLACK_BOT_TOKEN) {
-			console.error("Env var SLACK_BOT_TOKEN is not set, exiting.");
+			logger.error(new Error("Env var SLACK_BOT_TOKEN is not set, exiting."));
 			throw new Error("Env var SLACK_BOT_TOKEN not set");
 		}
 
@@ -33,20 +34,20 @@ export default class SlackClient {
 
 	private handleEvent = async (event: any) => {
 
-		console.log(`Received event: ${JSON.stringify(event, null, 2)}`);
+		logger.info(`Received event: ${JSON.stringify(event, null, 2)}`);
 
 		if (event.user === this.rtmWrapper.activeUserId) {
-			console.log("This is my own message, ignoring");
+			logger.info("This is my own message, ignoring");
 			return;
 		}
 
 		if (event.type !== "message") {
-			console.log("This is not a message, ignoring");
+			logger.info("This is not a message, ignoring");
 			return;
 		}
 
 		if (event.subtype === "message_deleted") {
-			console.log("This is a message_deleted event, ignoring");
+			logger.info("This is a message_deleted event, ignoring");
 			return;
 		}
 
@@ -87,10 +88,10 @@ export default class SlackClient {
 			const msg = `Usage:\n\t*help*: Prints usage info\n\t*status*: Returns status of application/RPi\n\t*photo*: Posts a frame from camera\n\t*video*: Posts some seconds of video\n`;
 
 			const reply = await this.rtmWrapper.sendMessage(msg, channel);
-			console.log("Message sent successfully", reply.ts);
+			logger.info("Message sent successfully", reply.ts);
 
 		} catch (error) {
-			console.log("An error occurred", error);
+			logger.error(error);
 		}
 	};
 
@@ -99,32 +100,32 @@ export default class SlackClient {
 			const msg = `Not implemented yet!`;
 
 			const reply = await this.rtmWrapper.sendMessage(msg, channel);
-			console.log("Message sent successfully", reply.ts);
+			logger.info("Message sent successfully", reply.ts);
 
 		} catch (error) {
-			console.log("An error occurred", error);
+			logger.error(error);
 		}
 	};
 
 	private async processPhotoRequest(event: any) {
 		try {
 			const reply = await this.rtmWrapper.sendMessage(`Uploading a photo, <@${event.user}>`, event.channel);
-			console.log("Message sent successfully", reply.ts);
+			logger.info("Message sent successfully", reply.ts);
 
 			await this.webWrapper.uploadFileFromDisk(event.channel, "./testdata/crowd-img.jpeg");
 		} catch (error) {
-			console.log("An error occurred", error);
+			logger.error(error);
 		}
 	};
 
 	private async processVideoRequest(event: any) {
 		try {
 			const reply = await this.rtmWrapper.sendMessage(`Uploading a video, <@${event.user}>`, event.channel);
-			console.log("Message sent successfully", reply.ts);
+			logger.info("Message sent successfully", reply.ts);
 
 			await this.webWrapper.uploadFileFromDisk(event.channel, "./testdata/traffic.mp4");
 		} catch (error) {
-			console.log("An error occurred", error);
+			logger.error(error);
 		}
 	};
 }
@@ -134,7 +135,7 @@ export default class SlackClient {
 		await new SlackClient().run();
 	}
 	catch (err) {
-		console.error("Failed to connect to Slack:", err);
+		logger.error(err);
 		process.exit(1);
 	}
 })();

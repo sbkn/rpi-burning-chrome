@@ -12,6 +12,10 @@
 ### Requirements for running:
  - Set env var `SLACK_BOT_TOKEN`, this should be something like `xoxb-...`
 
+
+### Staging:
+ - Set env var `NODE_ENV=production` for production mode.
+
 ### Using example code from [opencv4nodejs](https://github.com/justadudewhohacks/opencv4nodejs)
 
 ## TODO:
