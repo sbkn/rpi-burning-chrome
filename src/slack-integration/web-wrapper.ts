@@ -26,4 +26,15 @@ export default class WebWrapper {
 
 		logger.info('File uploaded: ', result.file && result.file.id);
 	}
+
+	async uploadFileFromBuffer(channel: string, buffer: Buffer, fileName: string) {
+
+		const result = await this.web.files.upload({
+			filename: fileName,
+			channels: channel,
+			file: buffer,
+		}) as FileUploadResult;
+
+		logger.info('File uploaded: ', result.file && result.file.id);
+	}
 }

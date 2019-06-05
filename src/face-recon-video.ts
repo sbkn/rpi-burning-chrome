@@ -5,7 +5,7 @@ import {Vec3} from "opencv4nodejs";
 const BOUNDING_BOX_COLOR = new Vec3(66, 244, 110);
 
 
-function grabFrames(videoFile: any, delay: number, onFrame: (frame: cv.Mat) => void): void {
+function grabFrames(videoFile: string, delay: number, onFrame: (frame: cv.Mat) => void): void {
 	const cap = new cv.VideoCapture(videoFile);
 	let done = false;
 	const intvl = setInterval(() => {
@@ -23,7 +23,7 @@ function grabFrames(videoFile: any, delay: number, onFrame: (frame: cv.Mat) => v
 			clearInterval(intvl);
 			console.log('Key pressed, exiting.');
 		}
-	}, 0);
+	}, 50);
 }
 
 const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);

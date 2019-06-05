@@ -1,6 +1,7 @@
 import RtmWrapper from "./rtm-wrapper";
 import WebWrapper from "./web-wrapper";
 import {logger} from "../utils/logger";
+import FaceRecognition from "../face-recognition";
 
 enum Actions {
 	HELP = "help",
@@ -112,7 +113,9 @@ export default class SlackClient {
 			const reply = await this.rtmWrapper.sendMessage(`Uploading a photo, <@${event.user}>`, event.channel);
 			logger.info("Message sent successfully", reply.ts);
 
-			await this.webWrapper.uploadFileFromDisk(event.channel, "./testdata/crowd-img.jpeg");
+			const pic = await FaceRecognition.doIt();
+
+			await this.webWrapper.uploadFileFromBuffer(event.channel, pic, "Cheeeese!");
 		} catch (error) {
 			logger.error(error);
 		}
