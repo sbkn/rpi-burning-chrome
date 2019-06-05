@@ -1,4 +1,4 @@
-import {SlackClient} from "./slack-integration/index";
+import {SlackClient} from "./slack-integration";
 import {logger} from "./utils/logger";
 
 (async () => {
