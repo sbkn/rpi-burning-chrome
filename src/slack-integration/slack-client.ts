@@ -129,13 +129,3 @@ export default class SlackClient {
 		}
 	};
 }
-
-(async () => {
-	try {
-		await new SlackClient().run();
-	}
-	catch (err) {
-		logger.error(err);
-		process.exit(1);
-	}
-})();
