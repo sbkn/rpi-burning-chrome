@@ -1,17 +1,16 @@
 import * as cv from "opencv4nodejs";
 import {Vec3, Point2} from "opencv4nodejs";
+import CameraWrapper from "./camera-wrapper";
 
 const BOUNDING_BOX_COLOR = new Vec3(66, 244, 110);
 
 export default class FaceRecognition {
 
-	static async doIt(): Promise<Buffer> {
+	static async camFrame(): Promise<Buffer> {
 
 		const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 
-		const cap = new cv.VideoCapture(0);
-
-		const img = cap.read();
+		const img = CameraWrapper.grabFrame(0);
 
 		const grayImg = await img.bgrToGrayAsync();
 		const res = await classifier.detectMultiScaleAsync(grayImg);

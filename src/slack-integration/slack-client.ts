@@ -113,7 +113,7 @@ export default class SlackClient {
 			const reply = await this.rtmWrapper.sendMessage(`Uploading a photo, <@${event.user}>`, event.channel);
 			logger.info("Message sent successfully", reply.ts);
 
-			const pic = await FaceRecognition.doIt();
+			const pic = await FaceRecognition.camFrame();
 
 			await this.webWrapper.uploadFileFromBuffer(event.channel, pic, "Cheeeese!");
 		} catch (error) {
