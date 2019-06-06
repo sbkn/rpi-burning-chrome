@@ -6,7 +6,7 @@ const BOUNDING_BOX_COLOR = new Vec3(66, 244, 110);
 
 export default class FaceRecognition {
 
-	static async camFrame(): Promise<Buffer> {
+	static async camFrameJpg(): Promise<Buffer> {
 
 		const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 
