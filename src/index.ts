@@ -3,7 +3,7 @@ import {logger} from "./utils/logger";
 
 (async () => {
 	try {
-		await new SlackClient().run();
+		await new SlackClient().run(); // TODO: Refactor
 	}
 	catch (err) {
 		logger.error(err);

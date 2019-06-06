@@ -3,7 +3,7 @@ import {logger} from "./utils/logger";
 
 
 function grabFrames (videoFile: any, delay: number, onFrame: (frame: cv.Mat) => void): void {
-	const cap = new cv.VideoCapture(videoFile);
+	const cap = new cv.VideoCapture(0);
 	let done = false;
 	const intvl = setInterval(() => {
 		let frame = cap.read();
