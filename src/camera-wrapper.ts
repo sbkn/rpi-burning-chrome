@@ -18,7 +18,7 @@ export default class CameraWrapper {
 		return new Promise((resolve) => {
 
 			const cap = new cv.VideoCapture(devicePort);
-			const fourcc = cv.VideoWriter.fourcc('MP42');
+			const fourcc = cv.VideoWriter.fourcc('mp4v');
 			const size = new cv.Size(cap.get(cv.CAP_PROP_FRAME_WIDTH), cap.get(cv.CAP_PROP_FRAME_HEIGHT));
 			const videoWriter = new cv.VideoWriter(filePath, fourcc, cv.CAP_PROP_FPS, size, true);
 
