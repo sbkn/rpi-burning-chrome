@@ -126,7 +126,11 @@ export default class SlackClient {
 			const reply = await this.rtmWrapper.sendMessage(`Uploading a video, <@${event.user}>`, event.channel);
 			logger.info("Message sent successfully", reply.ts);
 
-			await this.webWrapper.uploadFileFromDisk(event.channel, "./testdata/traffic.mp4");
+			const filePath = "./remove.mp4";
+
+			await FaceRecognition.camVideoToDisk(filePath);
+
+			await this.webWrapper.uploadFileFromDisk(event.channel, filePath);
 		} catch (error) {
 			logger.error(error);
 		}

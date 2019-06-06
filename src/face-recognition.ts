@@ -26,4 +26,29 @@ export default class FaceRecognition {
 
 		return await cv.imencodeAsync(".jpg", img);
 	}
+
+	static async camVideoToDisk(filePath: string): Promise<string> {
+
+		await CameraWrapper.saveVideoClip(0, 5, filePath, FaceRecognition.processVideoFrame);
+
+		return filePath;
+	}
+
+	private static processVideoFrame(frame: cv.Mat): cv.Mat {
+
+		const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
+
+		const grayImg = frame.bgrToGray();
+		const res = classifier.detectMultiScale(grayImg);
+		const {objects, numDetections} = res;
+
+		logger.info(`Found ${objects.length} objects`);
+		logger.info("numDetections", JSON.stringify(numDetections));
+
+		objects.forEach(object => {
+			frame.drawRectangle(new Point2(object.x, object.y), new Point2(object.x + object.width, object.y + object.height), BOUNDING_BOX_COLOR);
+		});
+
+		return frame;
+	}
 }
