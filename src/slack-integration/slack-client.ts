@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import RtmWrapper from "./rtm-wrapper";
 import WebWrapper from "./web-wrapper";
 import {logger} from "../utils/logger";
@@ -126,11 +127,13 @@ export default class SlackClient {
 			const reply = await this.rtmWrapper.sendMessage(`Uploading a video, <@${event.user}>`, event.channel);
 			logger.info("Message sent successfully", reply.ts);
 
-			const filePath = "./remove.mp4";
+			const filePath = "./vid-clip.mp4";
 
 			await FaceRecognition.camVideoToDisk(filePath);
 
 			await this.webWrapper.uploadFileFromDisk(event.channel, filePath);
+
+			fs.unlinkSync(filePath);
 		} catch (error) {
 			logger.error(error);
 		}
