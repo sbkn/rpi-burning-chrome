@@ -20,7 +20,7 @@ function grabFrames (videoFile: any, delay: number, onFrame: (frame: cv.Mat) => 
 			clearInterval(intvl);
 			logger.info('Key pressed, exiting.');
 		}
-	}, 0);
+	}, 200);
 }
 
 function drawRectAroundBlobs (binaryImg: cv.Mat, dstImg: cv.Mat, minPxSize: number, fixedRectWidth?: number): void {
@@ -67,7 +67,7 @@ grabFrames('./testdata/traffic.mp4', delay, (frame: cv.Mat) => {
 	const minPxSize = 4000;
 	drawRectAroundBlobs(thresholded, frame, minPxSize);
 
-	cv.imshow('foreGroundMask', foreGroundMask);
-	cv.imshow('thresholded', thresholded);
+	// cv.imshow('foreGroundMask', foreGroundMask);
+	// cv.imshow('thresholded', thresholded);
 	cv.imshow('frame', frame);
 });
