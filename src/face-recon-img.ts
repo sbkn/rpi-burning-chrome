@@ -1,5 +1,6 @@
 import * as cv from "opencv4nodejs";
 import {Vec3, Point2} from "opencv4nodejs";
+import {logger} from "./utils/logger";
 
 const INPUT_IMAGE_PATH = "./testdata/crowd-img.jpeg";
 // const RESULT_IMAGE_PATH = "./result.jpeg";
@@ -16,8 +17,8 @@ const index = async (): Promise<void> => {
 	const res = await classifier.detectMultiScaleAsync(grayImg);
 	const {objects, numDetections} = res;
 
-	console.log(`Found ${objects.length} objects`);
-	console.log("numDetections", JSON.stringify(numDetections));
+	logger.info(`Found ${objects.length} objects`);
+	logger.info("numDetections", JSON.stringify(numDetections));
 
 	objects.forEach(object => {
 		img.drawRectangle(new Point2(object.x, object.y), new Point2(object.x + object.width, object.y + object.height), BOUNDING_BOX_COLOR);

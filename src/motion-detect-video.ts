@@ -1,4 +1,5 @@
 import * as cv from 'opencv4nodejs';
+import {logger} from "./utils/logger";
 
 
 function grabFrames (videoFile: any, delay: number, onFrame: (frame: cv.Mat) => void): void {
@@ -17,7 +18,7 @@ function grabFrames (videoFile: any, delay: number, onFrame: (frame: cv.Mat) => 
 		done = key !== -1 && key !== 255;
 		if (done) {
 			clearInterval(intvl);
-			console.log('Key pressed, exiting.');
+			logger.info('Key pressed, exiting.');
 		}
 	}, 0);
 }
