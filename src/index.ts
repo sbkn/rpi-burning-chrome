@@ -5,7 +5,7 @@ import MotionDetection from "./motion-detection";
 (async () => {
 	try {
 		await new SlackClient().run();
-		await MotionDetection.run();
+		 await MotionDetection.run();
 	}
 	catch (err) {
 		logger.error(err);

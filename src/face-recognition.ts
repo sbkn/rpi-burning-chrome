@@ -27,12 +27,12 @@ export default class FaceRecognition {
 		return await cv.imencodeAsync(".jpg", img);
 	}
 
-	static markFaceOnImg(img: cv.Mat): cv.Mat {
+	static async markFaceOnImg(img: cv.Mat): Promise<cv.Mat> {
 
 		const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 
-		const grayImg = img.bgrToGray();
-		const res = classifier.detectMultiScale(grayImg);
+		const grayImg = await img.bgrToGrayAsync();
+		const res = await classifier.detectMultiScaleAsync(grayImg);
 		const {objects, numDetections} = res;
 
 		logger.info(`Found ${objects.length} objects`);
@@ -47,17 +47,17 @@ export default class FaceRecognition {
 
 	static async camVideoToDisk(filePath: string): Promise<string> {
 
-		await CameraWrapper.saveVideoClip(0, 5, filePath, 50, FaceRecognition.processVideoFrame);
+		await new CameraWrapper().saveVideoClip(0, 5, filePath, 50, FaceRecognition.processVideoFrame);
 
 		return filePath;
 	}
 
-	private static processVideoFrame(frame: cv.Mat): cv.Mat {
+	private static async processVideoFrame(frame: cv.Mat): Promise<cv.Mat> {
 
 		const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 
-		const grayImg = frame.bgrToGray();
-		const res = classifier.detectMultiScale(grayImg);
+		const grayImg = await frame.bgrToGrayAsync();
+		const res = await classifier.detectMultiScaleAsync(grayImg);
 		const {objects, numDetections} = res;
 
 		logger.info(`Found ${objects.length} objects`);

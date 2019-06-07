@@ -3,6 +3,11 @@ import * as cv from "opencv4nodejs";
 export default class CameraWrapper {
 
 	doCapture = false;
+	savingVideo = false;
+
+	private static waitMs(delayMs: number) {
+		return new Promise(resolve => setTimeout(resolve, delayMs));
+	}
 
 	static grabSingleFrame(devicePort: number): cv.Mat {
 
@@ -15,57 +20,59 @@ export default class CameraWrapper {
 		return img;
 	}
 
-	static saveVideoClip(devicePort: number, lengthSecs: number, filePath: string, delayMs: number, onFrame?: (frame: cv.Mat) => cv.Mat): Promise<void> {
+	async saveVideoClip(devicePort: number, lengthSecs: number, filePath: string, delayMs: number, onFrame?: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat): Promise<void> {
 
-		return new Promise((resolve) => {
+		const cap = new cv.VideoCapture(devicePort);
+		const fourcc = cv.VideoWriter.fourcc('FMP4');
+		const size = new cv.Size(cap.get(cv.CAP_PROP_FRAME_WIDTH), cap.get(cv.CAP_PROP_FRAME_HEIGHT));
+		const videoWriter = new cv.VideoWriter(filePath, fourcc, cv.CAP_PROP_FPS, size, true);
 
-			const cap = new cv.VideoCapture(devicePort);
-			const fourcc = cv.VideoWriter.fourcc('FMP4');
-			const size = new cv.Size(cap.get(cv.CAP_PROP_FRAME_WIDTH), cap.get(cv.CAP_PROP_FRAME_HEIGHT));
-			const videoWriter = new cv.VideoWriter(filePath, fourcc, cv.CAP_PROP_FPS, size, true);
+		this.savingVideo = true;
 
-			let done = false;
+		setTimeout(() => {
+			this.savingVideo = false;
+		}, lengthSecs * 1000);
 
-			setTimeout(() => {
-				done = true;
-			}, lengthSecs * 1000);
-
-			const interval = setInterval(() => {
-				const frame = cap.read();
-
-				const processedFrame = onFrame ? onFrame(frame) : frame; // TODO: Make this async, onFrame should be able to be async
-				videoWriter.write(processedFrame);
-
-				if (done) {
-					clearInterval(interval);
-					cap.release();
-					videoWriter.release();
-					resolve();
-				}
-			}, delayMs);
-		});
+		await this.processCaptureRecursive(cap, videoWriter, delayMs, onFrame)
 	}
 
-	captureVideo(devicePort: number, delayMs: number, onFrame: (frame: cv.Mat) => cv.Mat): Promise<void> {
+	private async processCaptureRecursive(cap: cv.VideoCapture, videoWriter: cv.VideoWriter, delayMs: number, onFrame?: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat) {
+
+		const frame = cap.read();
+
+		const processedFrame = onFrame ? await onFrame(frame) : frame;
+		await videoWriter.writeAsync(processedFrame);
+
+		if (!this.savingVideo) {
+			cap.release();
+			videoWriter.release();
+		} else {
+			await CameraWrapper.waitMs(delayMs);
+			await this.processCaptureRecursive(cap, videoWriter, delayMs, onFrame);
+		}
+	}
+
+	async captureVideo(devicePort: number, delayMs: number, onFrame: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat): Promise<void> {
 
 		this.doCapture = true;
 
-		return new Promise((resolve) => {
+		const cap = new cv.VideoCapture(devicePort);
 
-			const cap = new cv.VideoCapture(devicePort);
+		await this.captureRecursive(cap, delayMs, onFrame)
 
-			const interval = setInterval(() => {
-				const frame = cap.read();
+	}
 
-				onFrame(frame);
+	private async captureRecursive(cap: cv.VideoCapture, delayMs: number, onFrame: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat) {
+		const frame = cap.read();
 
-				if (!this.doCapture) {
-					clearInterval(interval);
-					cap.release();
-					resolve();
-				}
-			}, delayMs);
-		});
+		await onFrame(frame);
+
+		if (!this.doCapture) {
+			cap.release();
+		} else {
+			await CameraWrapper.waitMs(delayMs);
+			await this.captureRecursive(cap, delayMs, onFrame);
+		}
 	}
 
 	stopCapturingVideo() {
