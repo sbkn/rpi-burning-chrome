@@ -30,6 +30,10 @@
  - Set env var `NODE_ENV=production` for production mode.
 
 ## TODO:
+ - Update `opencv4nodejs` functions to Async versions (e.g. `bgrToGrayAsync()`)
+ - Find best suitable video format (fourcc's `FMP4` is being used for now, this does not work with RPi and Slack browser client)
+
+## Links:
  - https://raspberrypi.stackexchange.com/questions/15454/detect-if-iphone-android-nearby
  - https://github.com/slackapi/node-slack-sdk (https://slack.dev/node-slack-sdk/rtm-api)
  - https://www.pyimagesearch.com/2015/06/01/home-surveillance-and-motion-detection-with-the-raspberry-pi-python-and-opencv/
