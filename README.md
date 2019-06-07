@@ -1,8 +1,13 @@
 # rpi-burning-chrome
 
+## This is experimental, DO NOT USE.
+
 ### This be motion detection and such for RPi
 
-### Requirements for building (run before `npm install`!):
+### Prerequisites:
+
+`opencv4nodejs` will auto-build OpenCV upon `npm install`, see [opencv4nodejs docs](https://github.com/justadudewhohacks/opencv4nodejs) for more info
+
  - MacOS:
 	```
 	brew install cmake
@@ -18,13 +23,11 @@
 	```
 
 ### Requirements for running:
- - Set env var `SLACK_BOT_TOKEN`, this should be something like `xoxb-...`
+ - Set env var `SLACK_BOT_TOKEN`, this should start with `xoxb-...`
 
 
 ### Staging:
  - Set env var `NODE_ENV=production` for production mode.
-
-### Using example code from [opencv4nodejs](https://github.com/justadudewhohacks/opencv4nodejs)
 
 ## TODO:
  - https://raspberrypi.stackexchange.com/questions/15454/detect-if-iphone-android-nearby

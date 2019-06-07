@@ -11,7 +11,7 @@ export default class FaceRecognition {
 
 		const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 
-		const img = CameraWrapper.grabFrame(0);
+		const img = CameraWrapper.grabSingleFrame(0);
 
 		const grayImg = await img.bgrToGrayAsync();
 		const res = await classifier.detectMultiScaleAsync(grayImg);
@@ -27,9 +27,27 @@ export default class FaceRecognition {
 		return await cv.imencodeAsync(".jpg", img);
 	}
 
+	static markFaceOnImg(img: cv.Mat): cv.Mat {
+
+		const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
+
+		const grayImg = img.bgrToGray();
+		const res = classifier.detectMultiScale(grayImg);
+		const {objects, numDetections} = res;
+
+		logger.info(`Found ${objects.length} objects`);
+		logger.info("numDetections", JSON.stringify(numDetections));
+
+		objects.forEach(object => {
+			img.drawRectangle(new Point2(object.x, object.y), new Point2(object.x + object.width, object.y + object.height), BOUNDING_BOX_COLOR);
+		});
+
+		return img;
+	}
+
 	static async camVideoToDisk(filePath: string): Promise<string> {
 
-		await CameraWrapper.saveVideoClip(0, 5, filePath, FaceRecognition.processVideoFrame);
+		await CameraWrapper.saveVideoClip(0, 5, filePath, 50, FaceRecognition.processVideoFrame);
 
 		return filePath;
 	}

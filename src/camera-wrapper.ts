@@ -2,7 +2,9 @@ import * as cv from "opencv4nodejs";
 
 export default class CameraWrapper {
 
-	static grabFrame(devicePort: number): cv.Mat {
+	doCapture = false;
+
+	static grabSingleFrame(devicePort: number): cv.Mat {
 
 		const cap = new cv.VideoCapture(devicePort);
 
@@ -13,7 +15,7 @@ export default class CameraWrapper {
 		return img;
 	}
 
-	static saveVideoClip(devicePort: number, lengthSecs: number, filePath: string, onFrame?: (frame: cv.Mat) => cv.Mat): Promise<void> {
+	static saveVideoClip(devicePort: number, lengthSecs: number, filePath: string, delayMs: number, onFrame?: (frame: cv.Mat) => cv.Mat): Promise<void> {
 
 		return new Promise((resolve) => {
 
@@ -31,8 +33,7 @@ export default class CameraWrapper {
 			const interval = setInterval(() => {
 				const frame = cap.read();
 
-				const processedFrame = onFrame ? onFrame(frame) : frame; // TODO: Await
-				console.log(filePath, fourcc, cv.CAP_PROP_FPS, size, true);
+				const processedFrame = onFrame ? onFrame(frame) : frame; // TODO: Make this async, onFrame should be able to be async
 				videoWriter.write(processedFrame);
 
 				if (done) {
@@ -41,8 +42,33 @@ export default class CameraWrapper {
 					videoWriter.release();
 					resolve();
 				}
-			}, 50);
+			}, delayMs);
 		});
+	}
 
+	captureVideo(devicePort: number, delayMs: number, onFrame: (frame: cv.Mat) => cv.Mat): Promise<void> {
+
+		this.doCapture = true;
+
+		return new Promise((resolve) => {
+
+			const cap = new cv.VideoCapture(devicePort);
+
+			const interval = setInterval(() => {
+				const frame = cap.read();
+
+				onFrame(frame);
+
+				if (!this.doCapture) {
+					clearInterval(interval);
+					cap.release();
+					resolve();
+				}
+			}, delayMs);
+		});
+	}
+
+	stopCapturingVideo() {
+		this.doCapture = false;
 	}
 }
