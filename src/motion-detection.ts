@@ -9,11 +9,11 @@ export default class MotionDetection {
 
 	static async run() {
 
-		await new CameraWrapper().captureVideo(0, 200, MotionDetection.processFrame);
+		await new CameraWrapper().captureVideo(0, 500, MotionDetection.processFrame);
 	}
 
-	static async processFrame(frame: cv.Mat): Promise<cv.Mat> {
-
+	static async processFrame(frame: cv.Mat, frameIndex: number): Promise<cv.Mat> {
+		logger.info(`Processing frame ${frameIndex}`);
 		const foreGroundMask = bgSubtractor.apply(frame);
 
 		const iterations = 2;
@@ -33,32 +33,25 @@ export default class MotionDetection {
 		return frame;
 	}
 
-	static async drawRectAroundBlobs(binaryImg: cv.Mat, dstImg: cv.Mat, minPxSize: number, fixedRectWidth?: number): Promise<void> {
+	static async drawRectAroundBlobs(binaryImg: cv.Mat, dstImg: cv.Mat, minPxSize: number): Promise<void> {
 		const {
 			centroids,
 			stats
 		} = await binaryImg.connectedComponentsWithStatsAsync();
-		let found = false;
-		// pretend label 0 is background
+
+		let movementDetected = false;
+
 		for (let label = 1; label < centroids.rows; label += 1) {
-			const [x1, y1] = [stats.at(label, cv.CC_STAT_LEFT), stats.at(label, cv.CC_STAT_TOP)];
-			const [x2, y2] = [
-				x1 + (fixedRectWidth || stats.at(label, cv.CC_STAT_WIDTH)),
-				y1 + (fixedRectWidth || stats.at(label, cv.CC_STAT_HEIGHT))
-			];
+
 			const size = stats.at(label, cv.CC_STAT_AREA);
-			// const blue = new cv.Vec3(255, 0, 0);
 
 			if (minPxSize < size) {
-				found = true;
-				/*dstImg.drawRectangle(
-					new cv.Point2(x1, y1),
-					new cv.Point2(x2, y2),
-					blue,
-					2
-				);*/
-				await FaceRecognition.markFaceOnImg(dstImg); // TODO
+				movementDetected = true;
+				break;
 			}
+		}
+		if (movementDetected) {
+			await FaceRecognition.markFaceOnImg(dstImg);
 		}
 	}
 }

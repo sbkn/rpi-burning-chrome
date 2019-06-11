@@ -36,7 +36,7 @@ export default class FaceRecognition {
 		const {objects, numDetections} = res;
 
 		logger.info(`Found ${objects.length} objects`);
-		logger.info("numDetections", JSON.stringify(numDetections));
+		logger.info(`numDetections ${JSON.stringify(numDetections)}`);
 
 		objects.forEach(object => {
 			img.drawRectangle(new Point2(object.x, object.y), new Point2(object.x + object.width, object.y + object.height), BOUNDING_BOX_COLOR);

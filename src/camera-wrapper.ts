@@ -1,4 +1,7 @@
 import * as cv from "opencv4nodejs";
+import {logger} from "./utils/logger";
+
+let FRAME_COUNTER = 1; // TODO: remove debug
 
 export default class CameraWrapper {
 
@@ -6,7 +9,10 @@ export default class CameraWrapper {
 	savingVideo = false;
 
 	private static waitMs(delayMs: number) {
-		return new Promise(resolve => setTimeout(resolve, delayMs));
+		return new Promise(resolve => setTimeout(() => {
+			logger.debug(`waited ${delayMs} ms`);
+			resolve();
+		}, delayMs));
 	}
 
 	static grabSingleFrame(devicePort: number): cv.Mat {
@@ -52,26 +58,39 @@ export default class CameraWrapper {
 		}
 	}
 
-	async captureVideo(devicePort: number, delayMs: number, onFrame: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat): Promise<void> {
-
+	async captureVideo(devicePort: number, delayMs: number, onFrame: (frame: cv.Mat, frameIndex: number) => Promise<cv.Mat> | cv.Mat): Promise<void> {
+		// TODO: Check if cap is already open (in C++: cap.isOpened());
 		this.doCapture = true;
-
+		logger.info(`Capturing video with ${cv.CAP_PROP_FPS} FPS`);
 		const cap = new cv.VideoCapture(devicePort);
 
-		await this.captureRecursive(cap, delayMs, onFrame)
+		await cap.setAsync(cv.CAP_PROP_FRAME_WIDTH, 640); // TODO: Make these arguments
+		await cap.setAsync(cv.CAP_PROP_FRAME_HEIGHT, 480);
 
+		await this.captureRecursive(cap, delayMs, onFrame);
 	}
 
-	private async captureRecursive(cap: cv.VideoCapture, delayMs: number, onFrame: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat) {
-		const frame = cap.read();
+	private async captureRecursive(cap: cv.VideoCapture, delayMs: number, onFrame: (frame: cv.Mat, frameIndex: number) => Promise<cv.Mat> | cv.Mat): Promise<void> {
 
-		await onFrame(frame);
+		const hrStart = process.hrtime();
+		logger.debug("capturing recursively");
 
+		const frame = await cap.readAsync();
+		const hrRead = process.hrtime(hrStart);
+		logger.debug(`frame read in ${(hrRead[0] * 1e9 + hrRead[1]) / 1e6} ms`);
+		await onFrame(frame, FRAME_COUNTER);
+		const hrProcessed = process.hrtime(hrStart);
+		logger.debug(`frame processed in ${(hrProcessed[0] * 1e9 + hrProcessed[1]) / 1e6} ms`);
 		if (!this.doCapture) {
 			cap.release();
 		} else {
-			await CameraWrapper.waitMs(delayMs);
-			await this.captureRecursive(cap, delayMs, onFrame);
+			const hrProcessing = process.hrtime(hrStart);
+			const msProcessing = (hrProcessing[0] * 1e9 + hrProcessing[1]) / 1e6;
+			await CameraWrapper.waitMs(delayMs - msProcessing > 0 ? delayMs - msProcessing : 0);
+			const hrEnd = process.hrtime(hrStart);
+			logger.debug(`TOTAL Processing frame ${FRAME_COUNTER} took ${(hrEnd[0] * 1e9 + hrEnd[1]) / 1e6} ms`);
+			FRAME_COUNTER++;
+			return this.captureRecursive(cap, delayMs, onFrame);
 		}
 	}
 

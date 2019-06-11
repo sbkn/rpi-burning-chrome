@@ -1,5 +1,5 @@
 import * as cv from 'opencv4nodejs';
-import {logger} from "./utils/logger";
+import {logger} from "../utils/logger";
 
 
 function grabFrames (videoFile: any, delay: number, onFrame: (frame: cv.Mat) => void): void {
