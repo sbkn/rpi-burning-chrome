@@ -23,7 +23,7 @@ export default class RtmWrapper {
 		this.rtm = new RTMClient(token);
 	}
 
-	async connect(onMessage: (msg: string) => {}) {
+	async connect(onMessage: (msg: any) => {}) { // TODO: Type of msg is bad!
 
 		try {
 			const {self, team} = await this.rtm.start() as StartClientResult;
@@ -32,7 +32,7 @@ export default class RtmWrapper {
 			this.activeUserId = this.rtm.activeUserId;
 		}
 		catch (err) {
-			logger.error("Failed to connect to Slack:", err);
+			logger.error(`Failed to connect to Slack: ${err.message}`);
 			process.exit(1);
 		}
 
@@ -43,7 +43,12 @@ export default class RtmWrapper {
 
 	async sendMessage(message: string, channel: string) {
 
-		await this.rtm.sendTyping(channel);
-		return this.rtm.sendMessage(message, channel);
+		if (this.rtm.connected) {
+			await this.rtm.sendTyping(channel);
+			return this.rtm.sendMessage(message, channel);
+		} else {
+			logger.error("RTMWRAPPER NOT CONNECTED, BUT TRYING TO sendMessage()");
+			throw new Error("RtmWrapper is not connected!");
+		}
 	}
 }

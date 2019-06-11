@@ -11,7 +11,7 @@ export default class FaceRecognition {
 
 		const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 
-		const img = CameraWrapper.grabSingleFrame(0);
+		const img = await CameraWrapper.grabSingleFrame(0);
 
 		const grayImg = await img.bgrToGrayAsync();
 		const res = await classifier.detectMultiScaleAsync(grayImg);

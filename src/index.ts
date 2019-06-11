@@ -31,9 +31,8 @@ class Index {
 				.then(this.onAlarmPosted.bind(this));
 			FaceRecognition.markFaceOnImg(frame)
 				.then(() => cv.imencodeAsync(".jpg", frame))
-				.then((frameBuffer) => {return this.slackClient.uploadFileFromBuffer(frameBuffer)});
+				.then((frameBuffer) => {return this.slackClient.uploadFileFromBuffer(frameBuffer, "motion-detected.jpeg")});
 		}
-
 		return frame;
 	}
 

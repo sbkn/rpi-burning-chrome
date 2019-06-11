@@ -15,15 +15,20 @@ export default class CameraWrapper {
 		}, delayMs));
 	}
 
-	static grabSingleFrame(devicePort: number): cv.Mat {
+	static async grabSingleFrame(devicePort: number): Promise<cv.Mat> {
 
-		const cap = new cv.VideoCapture(devicePort);
+		try {
+			const cap = new cv.VideoCapture(devicePort);
 
-		const img = cap.read();
+			const img = await cap.readAsync();
 
-		cap.release();
+			cap.release();
 
-		return img;
+			return img;
+		} catch (e) {
+			logger.error(e);
+			throw new Error("CameraWrapper.grabSingleFrame crashed");
+		}
 	}
 
 	async saveVideoClip(devicePort: number, lengthSecs: number, filePath: string, delayMs: number, onFrame?: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat): Promise<void> {
@@ -44,7 +49,7 @@ export default class CameraWrapper {
 
 	private async processCaptureRecursive(cap: cv.VideoCapture, videoWriter: cv.VideoWriter, delayMs: number, onFrame?: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat) {
 
-		const frame = cap.read();
+		const frame = await cap.readAsync();
 
 		const processedFrame = onFrame ? await onFrame(frame) : frame;
 		await videoWriter.writeAsync(processedFrame);
@@ -64,8 +69,8 @@ export default class CameraWrapper {
 		logger.info(`Capturing video with ${cv.CAP_PROP_FPS} FPS`);
 		const cap = new cv.VideoCapture(devicePort);
 
-		await cap.setAsync(cv.CAP_PROP_FRAME_WIDTH, 640); // TODO: Make these arguments
-		await cap.setAsync(cv.CAP_PROP_FRAME_HEIGHT, 480);
+		await cap.setAsync(cv.CAP_PROP_FRAME_WIDTH, 1280); // TODO: Make these arguments
+		await cap.setAsync(cv.CAP_PROP_FRAME_HEIGHT, 720);
 
 		await this.captureRecursive(cap, delayMs, onFrame);
 	}

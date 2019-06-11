@@ -33,6 +33,8 @@
  - Update `opencv4nodejs` functions to Async versions (e.g. `bgrToGrayAsync()`)
  - Find best suitable video format (fourcc's `FMP4` is being used for now, this does not work with RPi and Slack browser client)
  - Set appropriate format for camera recordings (atm it's default(?) - depends on device)
+ - Check [this](https://picamera.readthedocs.io/en/release-1.13/fov.html) out for possible improvements for picam settings
+ - Error handling!
 
 ## Links:
  - https://raspberrypi.stackexchange.com/questions/15454/detect-if-iphone-android-nearby
