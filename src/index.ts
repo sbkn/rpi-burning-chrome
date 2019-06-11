@@ -28,8 +28,6 @@ class Index {
 	}
 
 	async run() {
-		this.slackClient = new SlackClient();
-		this.cameraWrapper = await new CameraWrapper();
 		await this.slackClient.run(this.handleEvent);
 		await MotionDetection.run(this.onMotionDetected.bind(this));
 	}
