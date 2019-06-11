@@ -29,8 +29,11 @@ class Index {
 		if (!this.slackPostTimeOut) {
 			this.slackClient.sendMessage(`Motion detected at ${moment().format("DD.MM.YYYY - HH:mm:ss")}!`)
 				.then(this.onAlarmPosted.bind(this));
+			FaceRecognition.markFaceOnImg(frame)
+				.then(() => cv.imencodeAsync(".jpg", frame))
+				.then((frameBuffer) => {return this.slackClient.uploadFileFromBuffer(frameBuffer)});
 		}
-		await FaceRecognition.markFaceOnImg(frame);
+
 		return frame;
 	}
 

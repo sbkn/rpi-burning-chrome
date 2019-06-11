@@ -40,7 +40,7 @@ export default class SlackClient {
 		if(!channel && !this.activeChannelId) {
 			this.activeChannelId = await this.webWrapper.getChannelId();
 		}
-		const reply = await this.rtmWrapper.sendMessage(message, channel || this.activeChannelId!);
+		const reply = await this.rtmWrapper.sendMessage(message, channel || this.activeChannelId!); // TODO: This '!'
 		logger.info("Message sent successfully", reply.ts);
 	}
 
@@ -148,4 +148,8 @@ export default class SlackClient {
 			logger.error(error);
 		}
 	};
+
+	async uploadFileFromBuffer(file: Buffer, title?: string, channel?: string) {
+		return this.webWrapper.uploadFileFromBuffer(channel || this.activeChannelId!, file, title || ""); // TODO: This '!'
+	}
 }
