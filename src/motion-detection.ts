@@ -1,18 +1,17 @@
 import * as cv from 'opencv4nodejs';
 import {logger} from "./utils/logger";
 import CameraWrapper from "./camera-wrapper";
-import FaceRecognition from "./face-recognition";
 
 const bgSubtractor = new cv.BackgroundSubtractorMOG2();
 
 export default class MotionDetection {
 
-	static async run() {
+	static async run(onDetected: (frame: cv.Mat) => Promise<cv.Mat> ) {
 
-		await new CameraWrapper().captureVideo(0, 500, MotionDetection.processFrame);
+		await new CameraWrapper().captureVideo(0, 500, (frame, frameIndex) => MotionDetection.processFrame(frame, frameIndex, onDetected));
 	}
 
-	static async processFrame(frame: cv.Mat, frameIndex: number): Promise<cv.Mat> {
+	static async processFrame(frame: cv.Mat, frameIndex: number, onDetected: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat): Promise<cv.Mat> {
 		logger.info(`Processing frame ${frameIndex}`);
 		const foreGroundMask = bgSubtractor.apply(frame);
 
@@ -27,31 +26,31 @@ export default class MotionDetection {
 		const thresholded = await blurred.thresholdAsync(200, 255, cv.THRESH_BINARY);
 
 		const minPxSize = 2000; // TODO: Find okay value
-		await MotionDetection.drawRectAroundBlobs(thresholded, frame, minPxSize);
+		const motionDetected = await MotionDetection.findMotionInFrame(thresholded, minPxSize);
+
+		if (motionDetected) {
+			await onDetected(frame);
+		}
+
 		cv.imshow('frame', frame);
 		cv.waitKey(20);
 		return frame;
 	}
 
-	static async drawRectAroundBlobs(binaryImg: cv.Mat, dstImg: cv.Mat, minPxSize: number): Promise<void> {
+	static async findMotionInFrame(binaryImg: cv.Mat, minPxSize: number): Promise<boolean> {
 		const {
 			centroids,
 			stats
 		} = await binaryImg.connectedComponentsWithStatsAsync();
-
-		let movementDetected = false;
 
 		for (let label = 1; label < centroids.rows; label += 1) {
 
 			const size = stats.at(label, cv.CC_STAT_AREA);
 
 			if (minPxSize < size) {
-				movementDetected = true;
-				break;
+				return true;
 			}
 		}
-		if (movementDetected) {
-			await FaceRecognition.markFaceOnImg(dstImg);
-		}
+		return false;
 	}
 }

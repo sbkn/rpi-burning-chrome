@@ -16,6 +16,7 @@ export default class SlackClient {
 	rtmWrapper: RtmWrapper;
 	webWrapper: WebWrapper;
 	token: string;
+	activeChannelId?: string;
 
 	constructor() {
 
@@ -31,7 +32,16 @@ export default class SlackClient {
 
 	async run() {
 
+		this.activeChannelId = await this.webWrapper.getChannelId();
 		await this.rtmWrapper.connect(this.handleEvent);
+	}
+
+	async sendMessage(message: string, channel?: string): Promise<void> {
+		if(!channel && !this.activeChannelId) {
+			this.activeChannelId = await this.webWrapper.getChannelId();
+		}
+		const reply = await this.rtmWrapper.sendMessage(message, channel || this.activeChannelId!);
+		logger.info("Message sent successfully", reply.ts);
 	}
 
 	private handleEvent = async (event: any) => {
