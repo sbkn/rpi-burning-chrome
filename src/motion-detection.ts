@@ -1,4 +1,5 @@
 import * as cv from 'opencv4nodejs';
+import moment from "moment";
 import {logger} from "./utils/logger";
 import CameraWrapper from "./camera-wrapper";
 
@@ -29,6 +30,7 @@ export default class MotionDetection {
 		const motionDetected = await MotionDetection.findMotionInFrame(thresholded, minPxSize);
 
 		if (motionDetected) {
+			logger.info(`Motion detected at ${moment().format()}!`);
 			await onDetected(frame);
 		}
 

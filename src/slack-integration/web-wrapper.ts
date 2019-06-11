@@ -36,10 +36,10 @@ export default class WebWrapper {
 		throw new Error("Could not find active group!");
 	}
 
-	async uploadFileFromDisk(channel: string, filePath: string) {
+	async uploadFileFromDisk(channel: string, filePath: string, title?: string) {
 
 		const result = await this.web.files.upload({
-			filename: filePath,
+			filename: title || "foo.jpeg",
 			channels: channel,
 			file: createReadStream(filePath),
 		}) as FileUploadResult;
