@@ -1,16 +1,10 @@
 import * as cv from 'opencv4nodejs';
 import moment from "moment";
 import {logger} from "./utils/logger";
-import CameraWrapper from "./camera-wrapper";
 
 const bgSubtractor = new cv.BackgroundSubtractorMOG2();
 
 export default class MotionDetection {
-
-	static async run(onDetected: (frame: cv.Mat) => Promise<cv.Mat> ) {
-
-		await new CameraWrapper().captureVideo(0, 500, (frame, frameIndex) => MotionDetection.processFrame(frame, frameIndex, onDetected));
-	}
 
 	static async processFrame(frame: cv.Mat, frameIndex: number, onDetected: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat): Promise<cv.Mat> {
 		logger.info(`Processing frame ${frameIndex}`);

@@ -29,7 +29,7 @@ class Index {
 
 	async run() {
 		await this.slackClient.run(this.handleEvent);
-		await MotionDetection.run(this.onMotionDetected.bind(this));
+		await this.cameraWrapper.captureVideo(0, 500, (frame, frameIndex) => MotionDetection.processFrame(frame, frameIndex, this.onMotionDetected.bind(this)));
 	}
 
 	private static waitMs(delayMs: number) {
