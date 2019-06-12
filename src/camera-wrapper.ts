@@ -38,6 +38,10 @@ export default class CameraWrapper {
 	async saveVideoClip(devicePort: number, lengthSecs: number, filePath: string, delayMs: number, onFrame?: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat): Promise<void> {
 
 		const fourcc = cv.VideoWriter.fourcc('FMP4');
+
+		await this.vidCap.setAsync(cv.CAP_PROP_FRAME_WIDTH, 1280); // TODO: Make these arguments
+		await this.vidCap.setAsync(cv.CAP_PROP_FRAME_HEIGHT, 720);
+
 		const size = new cv.Size(this.vidCap.get(cv.CAP_PROP_FRAME_WIDTH), this.vidCap.get(cv.CAP_PROP_FRAME_HEIGHT));
 		const videoWriter = new cv.VideoWriter(filePath, fourcc, cv.CAP_PROP_FPS, size, true);
 

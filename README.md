@@ -1,7 +1,5 @@
 # rpi-burning-chrome
 
-## This is experimental, DO NOT USE.
-
 ### This be motion detection and such for RPi
 
 ### Prerequisites:
@@ -27,7 +25,7 @@
 
 
 ### Staging:
- - Set env var `NODE_ENV=production` for production mode.
+ - Set env var `NODE_ENV=production` for production mode. This only affects logging atm.
 
 ## TODO:
  - Update `opencv4nodejs` functions to Async versions (e.g. `bgrToGrayAsync()`)
@@ -35,6 +33,14 @@
  - Set appropriate format for camera recordings (atm it's default(?) - depends on device)
  - Check [this](https://picamera.readthedocs.io/en/release-1.13/fov.html) out for possible improvements for picam settings
  - Error handling!
+ 	Use `arp-scan` for scanning for devices in wifi?:
+ 	```
+ 	brew install arp-scan
+ 	```
+ 	or
+ 	```
+ 	sudo apt-get install arp-scan
+ 	```
 
 ## Links:
  - https://raspberrypi.stackexchange.com/questions/15454/detect-if-iphone-android-nearby

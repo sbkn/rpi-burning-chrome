@@ -11,7 +11,9 @@ enum Actions {
 	HELP = "help",
 	STATUS = "status",
 	PHOTO = "photo",
-	VIDEO = "video"
+	VIDEO = "video",
+	START_MOTION_DETECTION = "start motion detection",
+	STOP_MOTION_DETECTION = "stop motion detection"
 }
 
 const SLACK_POST_TIMEOUT_SECS = 30; // TODO: Move to config!
@@ -21,6 +23,7 @@ class Index {
 	slackClient: SlackClient;
 	cameraWrapper: CameraWrapper;
 	slackPostTimeOut = false; // TODO: Rename this ..
+	motionDetectionActive = false;
 
 	constructor() {
 		this.slackClient = new SlackClient();
@@ -29,7 +32,25 @@ class Index {
 
 	async run() {
 		await this.slackClient.run(this.handleEvent);
-		await this.cameraWrapper.captureVideo(0, 500, (frame, frameIndex) => MotionDetection.processFrame(frame, frameIndex, this.onMotionDetected.bind(this)));
+		await Index.waitMs(1000); // TODO: Why is slackClient not connected at this point yet?
+		await this.startMotionDetection();
+	}
+
+	private async startMotionDetection() {
+		if (!this.motionDetectionActive) {
+			this.motionDetectionActive = true;
+			await this.slackClient.sendMessage("Starting motion detection ..");
+			await this.cameraWrapper.captureVideo(0, 500, (frame, frameIndex) => MotionDetection.processFrame(frame, frameIndex, this.onMotionDetected.bind(this)));
+		} else {
+			logger.error("Motion detection is already active");
+			await this.slackClient.sendMessage("Motion detection already active");
+		}
+	}
+
+	private async stopMotionDetection() {
+		this.motionDetectionActive = false;
+		this.cameraWrapper.stopCapturingVideo();
+		await this.slackClient.sendMessage("Stopped motion detection.");
 	}
 
 	private static waitMs(delayMs: number) {
@@ -45,7 +66,9 @@ class Index {
 				.then(this.onAlarmPosted.bind(this));
 			FaceRecognition.markFaceOnImg(frame)
 				.then(() => cv.imencodeAsync(".jpg", frame))
-				.then((frameBuffer) => {return this.slackClient.uploadFileFromBuffer(frameBuffer, "motion-detected.jpeg")});
+				.then((frameBuffer) => {
+					return this.slackClient.uploadFileFromBuffer(frameBuffer, "motion-detected.jpeg")
+				});
 		}
 		return frame;
 	}
@@ -90,17 +113,23 @@ class Index {
 			case Actions.VIDEO:
 				await this.processVideoRequest(event);
 				break;
+			case Actions.START_MOTION_DETECTION:
+				await this.startMotionDetection();
+				break;
+			case Actions.STOP_MOTION_DETECTION:
+				await this.stopMotionDetection();
+				break;
 			default:
 				await this.processHelpRequest(event.channel);
 				break;
 		}
 	};
 
-	private static extractActionFromMessage (message: string) {
+	private static extractActionFromMessage(message: string) {
 		const normalizedMsg = message.toLowerCase().trim();
 
-		for(const action in Actions) {
-			if(normalizedMsg.includes(Actions[action])){
+		for (const action in Actions) {
+			if (normalizedMsg.includes(Actions[action])) {
 				return Actions[action];
 			}
 		}
@@ -109,7 +138,7 @@ class Index {
 
 	private async processHelpRequest(channel: string) {
 		try {
-			const msg = `Usage:\n\t*help*: Prints usage info\n\t*status*: Returns status of application/RPi\n\t*photo*: Posts a frame from camera\n\t*video*: Posts some seconds of video\n`;
+			const msg = `Usage:\n\t*${Actions.HELP}*: Prints usage info\n\t*${Actions.STATUS}*: Returns status of application/RPi\n\t*${Actions.PHOTO}*: Posts a frame from camera\n\t*${Actions.VIDEO}*: Posts some seconds of video\n\t*${Actions.START_MOTION_DETECTION}*: Starts motion detection\n\t*${Actions.STOP_MOTION_DETECTION}*: Stops motion detection\n`;
 			await this.slackClient.sendMessage(msg, channel);
 
 		} catch (error) {
@@ -119,7 +148,7 @@ class Index {
 
 	private async processStatusRequest(channel: string) {
 		try {
-			const msg = `Not implemented yet!`;
+			const msg = `Motion detection is active: ${this.motionDetectionActive}`;
 			await this.slackClient.sendMessage(msg, channel);
 
 		} catch (error) {
