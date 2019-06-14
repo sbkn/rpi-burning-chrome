@@ -11,6 +11,7 @@ export default class LedController {
 
 	constructor() {
 		if(Gpio.accessible) {
+			logger.debug("Gpio is accessible");
 			this.led = new Gpio(GPIO_PIN, "out");
 		} else {
 			// @ts-ignore
@@ -32,6 +33,7 @@ export default class LedController {
 
 		}catch (e) {
 			logger.error(e.message);
+			throw new Error("LedController.blinkLed() failed");
 		}
 	}
 

@@ -36,9 +36,8 @@ class Index {
 	async run() {
 		await this.slackClient.run(this.handleEvent);
 		await Index.waitMs(1000); // TODO: Why is slackClient not connected at this point yet?
-		await this.startMotionDetection();
 		await this.ledController.blinkLed();
-
+		await this.startMotionDetection();
 	}
 
 	private async startMotionDetection() {
