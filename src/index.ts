@@ -6,6 +6,7 @@ import {logger} from "./utils/logger";
 import MotionDetection from "./motion-detection";
 import FaceRecognition from "./face-recognition";
 import CameraWrapper from "./camera-wrapper";
+import LedController from "./utils/led-controller";
 
 enum Actions {
 	HELP = "help",
@@ -22,18 +23,22 @@ class Index {
 
 	slackClient: SlackClient;
 	cameraWrapper: CameraWrapper;
+	ledController: LedController;
 	slackPostTimeOut = false; // TODO: Rename this ..
 	motionDetectionActive = false;
 
 	constructor() {
 		this.slackClient = new SlackClient();
 		this.cameraWrapper = new CameraWrapper();
+		this.ledController = new LedController();
 	}
 
 	async run() {
 		await this.slackClient.run(this.handleEvent);
 		await Index.waitMs(1000); // TODO: Why is slackClient not connected at this point yet?
 		await this.startMotionDetection();
+		await this.ledController.blinkLed();
+
 	}
 
 	private async startMotionDetection() {
@@ -50,6 +55,7 @@ class Index {
 	private async stopMotionDetection() {
 		this.motionDetectionActive = false;
 		this.cameraWrapper.stopCapturingVideo();
+		this.ledController.stopBlinking();
 		await this.slackClient.sendMessage("Stopped motion detection.");
 	}
 

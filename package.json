@@ -31,6 +31,7 @@
     "@slack/rtm-api": "5.0.1",
     "@slack/web-api": "5.0.1",
     "moment": "2.24.0",
+    "onoff": "4.1.1",
     "opencv4nodejs": "4.17.0",
     "winston": "3.2.1"
   },
