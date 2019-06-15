@@ -25,6 +25,12 @@ export default class LedController {
 
 	async ledOn(durationSecs: number) {
 		try {
+			let ledWasBlinking = false;
+			if(this.blinkIntervalRef) {
+				await this.stopBlinking();
+				ledWasBlinking = true;
+			}
+
 			const currentValue = await this.led.read();
 			if (!currentValue) {
 				await this.led.write(1);
@@ -33,6 +39,9 @@ export default class LedController {
 				const currentValue = await this.led.read();
 				if (currentValue) {
 					await this.led.write(0);
+				}
+				if(ledWasBlinking) {
+					await this.blinkLed();
 				}
 			}, durationSecs * 1000);
 
@@ -56,9 +65,13 @@ export default class LedController {
 		}
 	}
 
-	stopBlinking() {
+	async stopBlinking() {
 		if (this.blinkIntervalRef) {
 			clearInterval(this.blinkIntervalRef);
+			const currentValue = await this.led.read();
+			if (currentValue) {
+				await this.led.write(0);
+			}
 		}
 	}
 

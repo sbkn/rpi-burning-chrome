@@ -60,7 +60,7 @@ class Index {
 	private async stopMotionDetection() {
 		this.motionDetectionActive = false;
 		this.cameraWrapper.stopCapturingVideo();
-		this.ledController.stopBlinking();
+		await this.ledController.stopBlinking();
 		await this.slackClient.sendMessage("Stopped motion detection.");
 	}
 
