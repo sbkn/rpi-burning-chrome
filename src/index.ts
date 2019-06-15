@@ -18,6 +18,7 @@ enum Actions {
 }
 
 const SLACK_POST_TIMEOUT_SECS = 30; // TODO: Move to config!
+const LED_DURATION_ON_DETECTION_SECS = 30; // TODO: Move to config!
 
 class Index {
 
@@ -51,7 +52,7 @@ class Index {
 			await this.ledController.blinkLed();
 			await this.cameraWrapper.captureVideo(0, 500, (frame, frameIndex) => MotionDetection.processFrame(frame, frameIndex, this.onMotionDetected.bind(this)));
 		} else {
-			logger.error("Motion detection is already active");
+			logger.info("Motion detection is already active");
 			await this.slackClient.sendMessage("Motion detection already active");
 		}
 	}
@@ -72,6 +73,7 @@ class Index {
 
 	async onMotionDetected(frame: cv.Mat): Promise<cv.Mat> {
 		if (!this.slackPostTimeOut) {
+			await this.ledController.ledOn(LED_DURATION_ON_DETECTION_SECS);
 			this.slackClient.sendMessage(`Motion detected at ${moment().format("DD.MM.YYYY - HH:mm:ss")}!`)
 				.then(this.onAlarmPosted.bind(this));
 			FaceRecognition.markFaceOnImg(frame)

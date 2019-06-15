@@ -10,7 +10,7 @@ export default class LedController {
 	blinkIntervalRef?: NodeJS.Timeout;
 
 	constructor() {
-		if(Gpio.accessible) {
+		if (Gpio.accessible) {
 			logger.debug("Gpio is accessible");
 			this.led = new Gpio(GPIO_PIN, "out");
 		} else {
@@ -23,22 +23,41 @@ export default class LedController {
 		}
 	}
 
+	async ledOn(durationSecs: number) {
+		try {
+			const currentValue = await this.led.read();
+			if (!currentValue) {
+				await this.led.write(1);
+			}
+			setTimeout(async () => {
+				const currentValue = await this.led.read();
+				if (currentValue) {
+					await this.led.write(0);
+				}
+			}, durationSecs * 1000);
+
+		} catch (e) {
+			logger.error(e.message);
+			throw new Error("LedController.ledOn() failed");
+		}
+	}
+
 	async blinkLed() {
 
 		try {
-			this.blinkIntervalRef = setInterval(async () => { // TODO: Refactor this mess
+			this.blinkIntervalRef = setInterval(async () => {
 				const currentValue = await this.led.read();
 				await this.led.write(currentValue === 0 ? 1 : 0);
 			}, BLINK_DELAY_MS);
 
-		}catch (e) {
+		} catch (e) {
 			logger.error(e.message);
 			throw new Error("LedController.blinkLed() failed");
 		}
 	}
 
 	stopBlinking() {
-		if(this.blinkIntervalRef) {
+		if (this.blinkIntervalRef) {
 			clearInterval(this.blinkIntervalRef);
 		}
 	}
