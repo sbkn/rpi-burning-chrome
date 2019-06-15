@@ -26,21 +26,18 @@ export default class LedController {
 	async ledOn(durationSecs: number) {
 		try {
 			let ledWasBlinking = false;
-			if(this.blinkIntervalRef) {
+			if (this.blinkIntervalRef) {
 				await this.stopBlinking();
 				ledWasBlinking = true;
 			}
 
-			const currentValue = await this.led.read();
-			if (!currentValue) {
-				await this.led.write(1);
-			}
+			await this.led.write(1);
 			setTimeout(async () => {
 				const currentValue = await this.led.read();
 				if (currentValue) {
 					await this.led.write(0);
 				}
-				if(ledWasBlinking) {
+				if (ledWasBlinking) {
 					await this.blinkLed();
 				}
 			}, durationSecs * 1000);
@@ -54,10 +51,12 @@ export default class LedController {
 	async blinkLed() {
 
 		try {
-			this.blinkIntervalRef = setInterval(async () => {
-				const currentValue = await this.led.read();
-				await this.led.write(currentValue === 0 ? 1 : 0);
-			}, BLINK_DELAY_MS);
+			if (!this.blinkIntervalRef) {
+				this.blinkIntervalRef = setInterval(async () => {
+					const currentValue = await this.led.read();
+					await this.led.write(currentValue === 0 ? 1 : 0);
+				}, BLINK_DELAY_MS);
+			}
 
 		} catch (e) {
 			logger.error(e.message);
@@ -76,6 +75,11 @@ export default class LedController {
 	}
 
 	cleanUp() {
-		this.led.unexport();
+		try {
+			this.led.unexport();
+		} catch (e) {
+			logger.error(e.message);
+			throw new Error("LedController.cleanUp() failed!");
+		}
 	}
 }
