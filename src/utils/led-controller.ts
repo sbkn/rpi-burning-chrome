@@ -4,12 +4,20 @@ import {logger} from "./logger";
 const GPIO_PIN = 17; // TODO: Rename, export to config etc.
 const BLINK_DELAY_MS = 1000; // TODO: Rename, export to config etc.
 
+export type DefaultMode = "on" | "off" | "blink";
+
 export default class LedController {
 
 	led: Gpio;
 	blinkIntervalRef?: NodeJS.Timeout;
+	defaultMode: DefaultMode;
 
-	constructor() {
+	constructor(options: { defaultMode?: DefaultMode }) {
+
+		const {defaultMode} = options;
+
+		this.defaultMode = defaultMode || "off";
+
 		if (Gpio.accessible) {
 			logger.debug("Gpio is accessible");
 			this.led = new Gpio(GPIO_PIN, "out");
@@ -23,24 +31,51 @@ export default class LedController {
 		}
 	}
 
-	async ledOn(durationSecs: number) {
+	async setToDefaultMode() {
+		switch (this.defaultMode) {
+			case "on":
+				await this.ledOn();
+				break;
+			case "off":
+				await this.ledOff();
+				break;
+			case "blink":
+				await this.blinkLed();
+				break;
+			default:
+				break;
+		}
+	}
+
+	async ledOn(durationSecs?: number) {
 		try {
-			let ledWasBlinking = false;
 			if (this.blinkIntervalRef) {
 				await this.stopBlinking();
-				ledWasBlinking = true;
 			}
 
 			await this.led.write(1);
-			setTimeout(async () => {
-				const currentValue = await this.led.read();
-				if (currentValue) {
-					await this.led.write(0);
-				}
-				if (ledWasBlinking) {
-					await this.blinkLed();
-				}
-			}, durationSecs * 1000);
+			if (durationSecs) {
+				setTimeout(async () => {
+					const currentValue = await this.led.read();
+					if (currentValue) {
+						await this.led.write(0);
+					}
+				}, durationSecs * 1000);
+			}
+
+		} catch (e) {
+			logger.error(e.message);
+			throw new Error("LedController.ledOn() failed");
+		}
+	}
+
+	async ledOff() {
+		try {
+			if (this.blinkIntervalRef) {
+				await this.stopBlinking();
+			}
+
+			await this.led.write(0);
 
 		} catch (e) {
 			logger.error(e.message);

@@ -31,7 +31,7 @@ class Index {
 	constructor() {
 		this.slackClient = new SlackClient();
 		this.cameraWrapper = new CameraWrapper();
-		this.ledController = new LedController();
+		this.ledController = new LedController({defaultMode: "blink"});
 
 		process.on("SIGINT", () => {
 			this.ledController.cleanUp();
@@ -41,7 +41,6 @@ class Index {
 	async run() {
 		await this.slackClient.run(this.handleEvent);
 		await Index.waitMs(1000); // TODO: Why is slackClient not connected at this point yet?
-		await this.ledController.blinkLed();
 		await this.startMotionDetection();
 	}
 
@@ -60,7 +59,7 @@ class Index {
 	private async stopMotionDetection() {
 		this.motionDetectionActive = false;
 		this.cameraWrapper.stopCapturingVideo();
-		await this.ledController.stopBlinking();
+		await this.ledController.setToDefaultMode();
 		await this.slackClient.sendMessage("Stopped motion detection.");
 	}
 
