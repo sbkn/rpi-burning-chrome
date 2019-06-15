@@ -79,7 +79,7 @@ export default class LedController {
 
 		} catch (e) {
 			logger.error(e.message);
-			throw new Error("LedController.ledOn() failed");
+			throw new Error("LedController.ledOff() failed");
 		}
 	}
 

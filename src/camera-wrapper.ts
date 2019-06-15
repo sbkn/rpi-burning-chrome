@@ -6,6 +6,7 @@ let FRAME_COUNTER = 1; // TODO: remove debug
 export default class CameraWrapper {
 
 	doCapture = false;
+	pauseCapturing = false;
 	savingVideo = false;
 	vidCap: cv.VideoCapture;
 
@@ -23,12 +24,8 @@ export default class CameraWrapper {
 	async grabSingleFrame(): Promise<cv.Mat> {
 
 		try {
+			return await this.vidCap.readAsync();
 
-			const img = await this.vidCap.readAsync();
-
-			// this.vidCap.release(); // TODO: destroying instances of this object should release this?
-
-			return img;
 		} catch (e) {
 			logger.error(e.message);
 			throw new Error("CameraWrapper.grabSingleFrame crashed");
@@ -38,6 +35,10 @@ export default class CameraWrapper {
 	async saveVideoClip(devicePort: number, lengthSecs: number, filePath: string, delayMs: number, onFrame?: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat): Promise<void> {
 
 		const fourcc = cv.VideoWriter.fourcc('FMP4');
+
+		this.pauseCapturing = true;
+
+		await CameraWrapper.waitMs(500); // TODO: Refactor
 
 		await this.vidCap.setAsync(cv.CAP_PROP_FRAME_WIDTH, 1280); // TODO: Make these arguments
 		await this.vidCap.setAsync(cv.CAP_PROP_FRAME_HEIGHT, 720);
@@ -53,7 +54,8 @@ export default class CameraWrapper {
 			this.savingVideo = false;
 		}, lengthSecs * 1000);
 
-		await this.processCaptureRecursive(this.vidCap, videoWriter, delayMs, onFrame)
+		await this.processCaptureRecursive(this.vidCap, videoWriter, delayMs, onFrame);
+		this.pauseCapturing = false;
 	}
 
 	private async processCaptureRecursive(cap: cv.VideoCapture, videoWriter: cv.VideoWriter, delayMs: number, onFrame?: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat) {
@@ -84,6 +86,10 @@ export default class CameraWrapper {
 	}
 
 	private async captureRecursive(cap: cv.VideoCapture, delayMs: number, onFrame: (frame: cv.Mat, frameIndex: number) => Promise<cv.Mat> | cv.Mat): Promise<void> {
+
+		if(this.pauseCapturing) {
+			return this.captureRecursive(cap, delayMs, onFrame);
+		}
 
 		const hrStart = process.hrtime();
 		logger.debug("capturing recursively");

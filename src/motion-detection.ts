@@ -7,7 +7,7 @@ const bgSubtractor = new cv.BackgroundSubtractorMOG2();
 export default class MotionDetection {
 
 	static async processFrame(frame: cv.Mat, frameIndex: number, onDetected: (frame: cv.Mat) => Promise<cv.Mat> | cv.Mat): Promise<cv.Mat> {
-		logger.info(`Processing frame ${frameIndex}`);
+		logger.debug(`Processing frame ${frameIndex}`);
 		const foreGroundMask = bgSubtractor.apply(frame);
 
 		const iterations = 2;
