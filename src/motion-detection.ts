@@ -28,8 +28,8 @@ export default class MotionDetection {
 			await onDetected(frame);
 		}
 
-		cv.imshow('frame', frame);
-		cv.waitKey(20);
+		// cv.imshow('frame', frame);
+		// cv.waitKey(20);
 		return frame;
 	}
 
