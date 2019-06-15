@@ -41,6 +41,9 @@ export default class LedController {
 		if(this.blinkIntervalRef) {
 			clearInterval(this.blinkIntervalRef);
 		}
+	}
+
+	cleanUp() {
 		this.led.unexport();
 	}
 }

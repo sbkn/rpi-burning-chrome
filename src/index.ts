@@ -31,6 +31,10 @@ class Index {
 		this.slackClient = new SlackClient();
 		this.cameraWrapper = new CameraWrapper();
 		this.ledController = new LedController();
+
+		process.on("SIGINT", () => {
+			this.ledController.cleanUp();
+		});
 	}
 
 	async run() {
@@ -44,6 +48,7 @@ class Index {
 		if (!this.motionDetectionActive) {
 			this.motionDetectionActive = true;
 			await this.slackClient.sendMessage("Starting motion detection ..");
+			await this.ledController.blinkLed();
 			await this.cameraWrapper.captureVideo(0, 500, (frame, frameIndex) => MotionDetection.processFrame(frame, frameIndex, this.onMotionDetected.bind(this)));
 		} else {
 			logger.error("Motion detection is already active");
