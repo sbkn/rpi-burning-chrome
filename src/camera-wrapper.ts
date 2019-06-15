@@ -88,6 +88,7 @@ export default class CameraWrapper {
 	private async captureRecursive(cap: cv.VideoCapture, delayMs: number, onFrame: (frame: cv.Mat, frameIndex: number) => Promise<cv.Mat> | cv.Mat): Promise<void> {
 
 		if(this.pauseCapturing) {
+			await CameraWrapper.waitMs(delayMs);
 			return this.captureRecursive(cap, delayMs, onFrame);
 		}
 
